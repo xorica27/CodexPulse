@@ -25,8 +25,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         self.userDefaults = userDefaults
         self.displayMode = DisplayMode(rawValue: userDefaults.string(forKey: Keys.displayMode) ?? "") ?? .both
         super.init()
-        statusItem.button?.font = .monospacedSystemFont(ofSize: NSFont.systemFontSize, weight: .regular)
-        statusItem.button?.toolTip = "CodexPulse"
+        configureStatusButton()
         store.onChange = { [weak self] in
             self?.updateStatusTitle()
             self?.rebuildMenu()
@@ -45,7 +44,45 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     }
 
     private func updateStatusTitle() {
-        statusItem.button?.title = DisplayFormatter.statusTitle(for: store.data, mode: displayMode)
+        let title = DisplayFormatter.statusTitle(for: store.data, mode: displayMode)
+        statusItem.button?.title = title
+        statusItem.button?.toolTip = "CodexPulse \(title)"
+        statusItem.button?.setAccessibilityLabel("CodexPulse \(title)")
+    }
+
+    private func configureStatusButton() {
+        guard let button = statusItem.button else {
+            return
+        }
+
+        button.font = .monospacedSystemFont(ofSize: NSFont.systemFontSize, weight: .regular)
+        button.toolTip = "CodexPulse"
+        button.imagePosition = .imageLeading
+        button.imageScaling = .scaleProportionallyDown
+
+        if let image = Self.loadMenuBarIcon() {
+            image.isTemplate = true
+            image.size = NSSize(width: 18, height: 18)
+            button.image = image
+        }
+    }
+
+    private static func loadMenuBarIcon() -> NSImage? {
+        let fileName = "CodexPulseMenuTemplate"
+
+        if let url = Bundle.main.url(forResource: fileName, withExtension: "pdf"),
+           let image = NSImage(contentsOf: url) {
+            return image
+        }
+
+        #if SWIFT_PACKAGE
+        if let url = Bundle.module.url(forResource: fileName, withExtension: "pdf"),
+           let image = NSImage(contentsOf: url) {
+            return image
+        }
+        #endif
+
+        return nil
     }
 
     private func rebuildMenu() {

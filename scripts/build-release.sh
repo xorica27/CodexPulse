@@ -17,6 +17,7 @@ mkdir -p "$MACOS_DIR" "$RESOURCES_DIR"
 
 cp ".build/arm64-apple-macosx/release/CodexPulse" "$MACOS_DIR/CodexPulse"
 cp "Sources/CodexPulse/Info.plist" "$CONTENTS_DIR/Info.plist"
+cp -R "Sources/CodexPulse/Resources/." "$RESOURCES_DIR/"
 
 chmod +x "$MACOS_DIR/CodexPulse"
 

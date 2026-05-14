@@ -10,6 +10,8 @@
     <string>CodexPulse</string>
     <key>CFBundleIdentifier</key>
     <string>com.charlie.codexpulse</string>
+    <key>CFBundleIconFile</key>
+    <string>CodexPulse</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>

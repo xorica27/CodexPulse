@@ -1,50 +1,68 @@
 # CodexPulse
 
-CodexPulse is a tiny native macOS menu bar app for viewing Codex rate-limit windows.
+A small macOS menu bar app for keeping an eye on your Codex rate limits.
 
-It reads the current Codex account limits from the local Codex app-server API and shows remaining quota for the 5-hour and weekly windows. It does not send data anywhere.
+CodexPulse sits in the top bar and shows your current 5-hour and weekly Codex quota remaining, so you can glance at it without opening the Codex app settings menu.
 
-## Features
+![CodexPulse icon](docs/codexpulse-icon.png)
 
-- Native macOS menu bar app.
-- Display modes: both windows, 5h only, or weekly only.
-- Manual refresh and 60-second automatic refresh.
-- Last-known-good cache if Codex is temporarily unavailable.
-- Optional launch-at-login toggle.
+## What It Shows
 
-## Build
+- 5-hour limit remaining
+- Weekly limit remaining
+- Reset time or reset date
+- Current Codex plan type
+- A stale/cached state when Codex is temporarily unavailable
+
+You can choose how compact the top-bar display should be:
+
+- Both: `5h 91% W 90%`
+- 5h only: `5h 91%`
+- Weekly only: `W 90%`
+
+## Install
+
+1. Download `CodexPulse-macos-arm64.zip` from the latest GitHub release.
+2. Unzip it.
+3. Drag `CodexPulse.app` into your `Applications` folder.
+4. Open it once.
+
+Because this early release is ad-hoc signed, macOS may block the first launch. If that happens, right-click `CodexPulse.app`, choose **Open**, then confirm. After that, it opens normally.
+
+## Using CodexPulse
+
+After launch, CodexPulse appears in your macOS menu bar as a small pulse-cloud icon with your selected quota text beside it.
+
+Open the menu to:
+
+- switch between 5h, weekly, or both display modes
+- refresh the value immediately
+- turn Launch at Login on or off
+- check when each limit resets
+- quit the app
+
+## Privacy
+
+CodexPulse runs locally on your Mac.
+
+It reads your Codex rate-limit information from the local Codex app helper and does not send your data anywhere. If Codex is not available for a moment, CodexPulse shows the last successful reading and marks it as cached/stale in the menu.
+
+## Requirements
+
+- macOS 13 or newer
+- Apple Silicon Mac
+- Codex installed at `/Applications/Codex.app`
+
+## For Developers
+
+Build and package locally:
 
 ```sh
 swift test
 scripts/build-release.sh
-```
-
-The built app will be at:
-
-```text
-dist/CodexPulse.app
-```
-
-## Package For GitHub
-
-```sh
 scripts/package-zip.sh
 ```
 
-The release zip will be created under `dist/`.
+The app bundle and zip are created in `dist/`.
 
-## Install
-
-Download the zip, unzip it, and move `CodexPulse.app` to `/Applications`.
-
-This v1 build is ad-hoc signed because no Developer ID signing identity is required. macOS may show a warning on first launch. If that happens, right-click `CodexPulse.app`, choose **Open**, then confirm.
-
-## Notes
-
-CodexPulse depends on the local Codex app binary at:
-
-```text
-/Applications/Codex.app/Contents/Resources/codex
-```
-
-If Codex changes its internal app-server API in a future release, CodexPulse will fall back to its cached last-known value and local Codex logs when possible.
+Optional notarization support can be added later through `scripts/notarize.sh` once a Developer ID certificate is available.

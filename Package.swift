@@ -19,7 +19,10 @@ let package = Package(
             name: "CodexPulse",
             dependencies: ["CodexPulseCore"],
             path: "Sources/CodexPulse",
-            exclude: ["Info.plist"]
+            exclude: ["Info.plist"],
+            resources: [
+                .copy("Resources")
+            ]
         ),
         .testTarget(
             name: "CodexPulseTests",

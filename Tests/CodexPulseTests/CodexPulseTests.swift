@@ -14,9 +14,9 @@ struct CodexPulseTests {
     func testDisplayModes() {
         let data = sampleData()
 
-        #expect(DisplayFormatter.statusTitle(for: data, mode: .both) == "Codex 5h 91% W 90%")
-        #expect(DisplayFormatter.statusTitle(for: data, mode: .fiveHour) == "Codex 5h 91%")
-        #expect(DisplayFormatter.statusTitle(for: data, mode: .weekly) == "Codex W 90%")
+        #expect(DisplayFormatter.statusTitle(for: data, mode: .both) == "5h 91% W 90%")
+        #expect(DisplayFormatter.statusTitle(for: data, mode: .fiveHour) == "5h 91%")
+        #expect(DisplayFormatter.statusTitle(for: data, mode: .weekly) == "W 90%")
     }
 
     @Test

@@ -3,11 +3,11 @@ import Foundation
 public enum DisplayFormatter {
     public static func statusTitle(for data: RateLimitData?, mode: DisplayMode) -> String {
         guard let data else {
-            return "Codex ?"
+            return "?"
         }
 
         if data.snapshot.isLimited {
-            return "Codex limited"
+            return "limited"
         }
 
         let fiveHour = percentText(data.snapshot.primary)
@@ -15,11 +15,11 @@ public enum DisplayFormatter {
 
         switch mode {
         case .both:
-            return "Codex 5h \(fiveHour) W \(weekly)"
+            return "5h \(fiveHour) W \(weekly)"
         case .fiveHour:
-            return "Codex 5h \(fiveHour)"
+            return "5h \(fiveHour)"
         case .weekly:
-            return "Codex W \(weekly)"
+            return "W \(weekly)"
         }
     }
 
