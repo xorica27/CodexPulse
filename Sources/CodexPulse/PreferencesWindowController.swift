@@ -64,6 +64,8 @@ private struct PreferencesView: View {
                 .tabItem { Text(L10n.text("preferences.tab.alerts")) }
             diagnosticsTab
                 .tabItem { Text(L10n.text("preferences.tab.diagnostics")) }
+            aboutTab
+                .tabItem { Text(L10n.text("preferences.tab.about")) }
         }
         .padding(20)
         .frame(width: 520, height: 520)
@@ -155,6 +157,40 @@ private struct PreferencesView: View {
             }
         }
         .formStyle(.grouped)
+    }
+
+    private var aboutTab: some View {
+        VStack(spacing: 14) {
+            Image(nsImage: NSApp.applicationIconImage)
+                .resizable()
+                .frame(width: 72, height: 72)
+                .cornerRadius(16)
+
+            Text(L10n.text("app.name"))
+                .font(.title2)
+                .fontWeight(.semibold)
+
+            Text(L10n.format("about.version", appVersion))
+                .foregroundStyle(.secondary)
+
+            Text(L10n.text("about.privacyNote"))
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+                .frame(maxWidth: 390)
+
+            Button(L10n.text("preferences.checkForUpdates")) {
+                NSWorkspace.shared.open(AppLinks.latestRelease)
+            }
+            .buttonStyle(.borderedProminent)
+
+            Link(L10n.text("about.viewReleases"), destination: AppLinks.latestRelease)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    private var appVersion: String {
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0.3.1"
     }
 
     private func binding<Value>(_ keyPath: WritableKeyPath<CodexPulseSettings, Value>) -> Binding<Value> {

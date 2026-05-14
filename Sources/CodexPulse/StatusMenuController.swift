@@ -156,10 +156,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
     }
 
     @objc private func checkForUpdates() {
-        guard let url = URL(string: "https://github.com/xorica27/CodexPulse/releases/latest") else {
-            return
-        }
-        NSWorkspace.shared.open(url)
+        NSWorkspace.shared.open(AppLinks.latestRelease)
     }
 
     @objc private func showAbout() {

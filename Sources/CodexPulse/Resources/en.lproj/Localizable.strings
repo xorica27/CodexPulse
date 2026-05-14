@@ -35,6 +35,7 @@
 "preferences.tab.display" = "Display";
 "preferences.tab.alerts" = "Alerts";
 "preferences.tab.diagnostics" = "Diagnostics";
+"preferences.tab.about" = "About";
 "preferences.menuBar" = "Menu bar";
 "preferences.percent" = "Percent";
 "preferences.language" = "Language";
@@ -53,6 +54,7 @@
 "preferences.weekly" = "Weekly: %@";
 "preferences.lastError" = "Last error";
 "preferences.noRecentError" = "No recent error";
+"preferences.checkForUpdates" = "Check for Updates";
 "displayMode.both" = "Both windows";
 "displayMode.fiveHour" = "5h window";
 "displayMode.weekly" = "Weekly window";

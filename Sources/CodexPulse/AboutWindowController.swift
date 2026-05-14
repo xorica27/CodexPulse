@@ -30,7 +30,7 @@ final class AboutWindowController {
 
 private struct AboutView: View {
     private var version: String {
-        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0.2.0"
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0.3.1"
     }
 
     var body: some View {
@@ -52,7 +52,7 @@ private struct AboutView: View {
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
 
-            Link(L10n.text("about.viewReleases"), destination: URL(string: "https://github.com/xorica27/CodexPulse/releases/latest")!)
+            Link(L10n.text("about.viewReleases"), destination: AppLinks.latestRelease)
         }
         .padding(24)
         .frame(width: 420, height: 260)

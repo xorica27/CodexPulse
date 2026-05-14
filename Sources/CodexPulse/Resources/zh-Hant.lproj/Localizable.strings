@@ -35,6 +35,7 @@
 "preferences.tab.display" = "顯示";
 "preferences.tab.alerts" = "提醒";
 "preferences.tab.diagnostics" = "診斷";
+"preferences.tab.about" = "關於";
 "preferences.menuBar" = "選單列";
 "preferences.percent" = "顯示百分比";
 "preferences.language" = "語言";
@@ -53,6 +54,7 @@
 "preferences.weekly" = "每週：%@";
 "preferences.lastError" = "最近錯誤";
 "preferences.noRecentError" = "沒有最近錯誤";
+"preferences.checkForUpdates" = "檢查更新";
 "displayMode.both" = "全部額度";
 "displayMode.fiveHour" = "5 小時額度";
 "displayMode.weekly" = "每週額度";
