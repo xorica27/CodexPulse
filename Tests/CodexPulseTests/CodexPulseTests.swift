@@ -72,6 +72,18 @@ struct CodexPulseTests {
     }
 
     @Test
+    func testDmgPackagingIsDocumentedAndScripted() throws {
+        let root = packageRoot()
+        let packageDmgScript = root.appendingPathComponent("scripts/package-dmg.sh")
+        let backgroundScript = root.appendingPathComponent("scripts/generate-dmg-background.swift")
+        let readme = try String(contentsOf: root.appendingPathComponent("README.md"), encoding: .utf8)
+
+        #expect(FileManager.default.isExecutableFile(atPath: packageDmgScript.path))
+        #expect(FileManager.default.fileExists(atPath: backgroundScript.path))
+        #expect(readme.contains("CodexPulse-macos-arm64.dmg"))
+    }
+
+    @Test
     func testRemainingPercentClampsFromUsedPercent() {
         #expect(RateLimitWindow(usedPercent: 9, windowDurationMins: 300, resetsAt: nil).remainingPercent == 91)
         #expect(RateLimitWindow(usedPercent: -10, windowDurationMins: 300, resetsAt: nil).remainingPercent == 100)

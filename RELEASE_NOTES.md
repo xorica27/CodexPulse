@@ -1,18 +1,12 @@
-# CodexPulse 0.3.1
+# CodexPulse 0.3.2
 
-This is a small polish release for the Preferences window.
+This release adds a friendlier macOS installer.
 
 ## What's New
 
-- Added an About tab inside Preferences.
-- Added Check for Updates inside Preferences, so the release link is available from both the menu and settings.
-- Kept the existing menu actions for About and Check for Updates.
-
-## Still Included From 0.3
-
-- English, Simplified Chinese, and Traditional Chinese app text.
-- A Language option in Preferences.
-- Clearer messages when Codex is missing, not ready, temporarily unavailable, or only cached data is available.
+- Added a polished DMG installer with the familiar drag-to-Applications layout.
+- Added a custom DMG background with CodexPulse install guidance.
+- Updated install instructions to recommend the DMG while keeping the zip available for manual installs.
 
 ## Good To Know
 

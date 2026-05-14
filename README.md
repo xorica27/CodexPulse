@@ -26,10 +26,12 @@ You can choose how compact the top-bar display should be:
 
 Before installing CodexPulse, install and open the official Codex app at least once. CodexPulse depends on the local Codex app helper for the most accurate live rate-limit data.
 
-1. Download `CodexPulse-macos-arm64.zip` from the latest GitHub release.
-2. Unzip it.
-3. Drag `CodexPulse.app` into your `Applications` folder.
+1. Download `CodexPulse-macos-arm64.dmg` from the latest GitHub release.
+2. Open the DMG.
+3. Drag `CodexPulse.app` into `Applications`.
 4. Open it once.
+
+The zip artifact, `CodexPulse-macos-arm64.zip`, is still available for manual installs or troubleshooting.
 
 Because this early release is ad-hoc signed, macOS may block the first launch. If that happens, right-click `CodexPulse.app`, choose **Open**, then confirm. After that, it opens normally.
 
@@ -87,9 +89,10 @@ Build and package locally:
 ```sh
 swift test
 scripts/build-release.sh
+scripts/package-dmg.sh
 scripts/package-zip.sh
 ```
 
-The app bundle and zip are created in `dist/`.
+The app bundle, DMG, and zip are created in `dist/`.
 
 Optional notarization support can be added later through `scripts/notarize.sh` once a Developer ID certificate is available.
