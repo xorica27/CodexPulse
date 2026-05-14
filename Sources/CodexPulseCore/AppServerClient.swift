@@ -92,7 +92,7 @@ public final class AppServerRateLimitClient: @unchecked Sendable {
             "params": [
                 "clientInfo": [
                     "name": "codexpulse",
-                    "version": "0.2.0"
+                    "version": "0.3.0"
                 ],
                 "capabilities": [
                     "experimentalApi": true

@@ -2,6 +2,7 @@ import CodexPulseCore
 import Foundation
 import UserNotifications
 
+@MainActor
 final class NotificationManager {
     private enum Keys {
         static let sentNotificationKeys = "sentNotificationKeys"
@@ -38,8 +39,8 @@ final class NotificationManager {
 
         for decision in decisions {
             let content = UNMutableNotificationContent()
-            content.title = decision.title
-            content.body = decision.body
+            content.title = L10n.notificationTitle(for: decision.kind)
+            content.body = L10n.notificationBody(for: decision, settings: settings)
             let request = UNNotificationRequest(
                 identifier: "codexpulse-\(decision.deduplicationKey)",
                 content: content,

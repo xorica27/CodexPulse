@@ -18,7 +18,7 @@ final class AboutWindowController {
             backing: .buffered,
             defer: false
         )
-        window.title = "About CodexPulse"
+        window.title = L10n.text("about.title")
         window.contentView = NSHostingView(rootView: AboutView())
         window.center()
         window.isReleasedWhenClosed = false
@@ -40,19 +40,19 @@ private struct AboutView: View {
                 .frame(width: 72, height: 72)
                 .cornerRadius(16)
 
-            Text("CodexPulse")
+            Text(L10n.text("app.name"))
                 .font(.title2)
                 .fontWeight(.semibold)
 
-            Text("Version \(version)")
+            Text(L10n.format("about.version", version))
                 .foregroundStyle(.secondary)
 
-            Text("CodexPulse runs locally and reads Codex rate-limit data from the local Codex app helper. It does not send your usage data anywhere.")
+            Text(L10n.text("about.privacyNote"))
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
 
-            Link("View Releases", destination: URL(string: "https://github.com/xorica27/CodexPulse/releases/latest")!)
+            Link(L10n.text("about.viewReleases"), destination: URL(string: "https://github.com/xorica27/CodexPulse/releases/latest")!)
         }
         .padding(24)
         .frame(width: 420, height: 260)

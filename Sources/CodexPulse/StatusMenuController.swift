@@ -38,15 +38,16 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
 
     private func updateStatusTitle() {
         let settings = settingsStore.settings
-        let title = DisplayFormatter.statusTitle(
+        let title = LocalizedDisplayFormatter.statusTitle(
             for: store.data,
             mode: settings.displayMode,
             percentDisplay: settings.percentDisplay,
             staleAfterMinutes: settings.staleAfterMinutes
         )
         statusItem.button?.title = "  \(title)"
-        statusItem.button?.toolTip = "CodexPulse \(title)"
-        statusItem.button?.setAccessibilityLabel("CodexPulse \(title)")
+        let tooltip = L10n.format("status.tooltip", title)
+        statusItem.button?.toolTip = tooltip
+        statusItem.button?.setAccessibilityLabel(tooltip)
     }
 
     private func configureStatusButton() {
@@ -55,7 +56,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         }
 
         button.font = .monospacedSystemFont(ofSize: NSFont.systemFontSize, weight: .regular)
-        button.toolTip = "CodexPulse"
+        button.toolTip = L10n.text("app.name")
         button.imagePosition = .imageLeading
         button.imageScaling = .scaleProportionallyDown
 
@@ -89,46 +90,46 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         menu.delegate = self
 
         if let data = store.data {
-            menu.addItem(disabled(DisplayFormatter.detailLine(label: "5-hour window", window: data.snapshot.primary)))
-            menu.addItem(disabled(DisplayFormatter.detailLine(label: "Weekly window", window: data.snapshot.secondary)))
-            menu.addItem(disabled("Plan: \(data.snapshot.planType ?? "unknown")"))
-            menu.addItem(disabled("Source: \(data.source.rawValue), updated \(DisplayFormatter.relativeAge(data.fetchedAt))"))
+            menu.addItem(disabled(LocalizedDisplayFormatter.detailLine(label: L10n.text("window.fiveHour"), window: data.snapshot.primary)))
+            menu.addItem(disabled(LocalizedDisplayFormatter.detailLine(label: L10n.text("window.weekly"), window: data.snapshot.secondary)))
+            menu.addItem(disabled(L10n.format("menu.plan", data.snapshot.planType ?? L10n.text("generic.unknown"))))
+            menu.addItem(disabled(L10n.format("menu.sourceUpdated", data.source.rawValue, LocalizedDisplayFormatter.relativeAge(data.fetchedAt))))
             if let message = data.errorMessage {
-                menu.addItem(disabled("Fallback reason: \(message)"))
+                menu.addItem(disabled(L10n.format("menu.fallbackReason", message)))
             }
         } else {
-            menu.addItem(disabled("Codex rate limits unavailable"))
+            menu.addItem(disabled(L10n.text("menu.rateLimitsUnavailable")))
         }
 
         if store.emptyState != .available {
-            menu.addItem(disabled(store.emptyState.menuMessage))
+            menu.addItem(disabled(L10n.emptyStateMessage(store.emptyState)))
         }
 
         menu.addItem(.separator())
-        let refresh = NSMenuItem(title: "Refresh Now", action: #selector(refreshNow), keyEquivalent: "r")
+        let refresh = NSMenuItem(title: L10n.text("menu.refreshNow"), action: #selector(refreshNow), keyEquivalent: "r")
         refresh.target = self
         menu.addItem(refresh)
 
-        let preferences = NSMenuItem(title: "Preferences...", action: #selector(showPreferences), keyEquivalent: ",")
+        let preferences = NSMenuItem(title: L10n.text("menu.preferences"), action: #selector(showPreferences), keyEquivalent: ",")
         preferences.target = self
         menu.addItem(preferences)
 
-        let launch = NSMenuItem(title: "Launch at Login", action: #selector(toggleLaunchAtLogin), keyEquivalent: "")
+        let launch = NSMenuItem(title: L10n.text("menu.launchAtLogin"), action: #selector(toggleLaunchAtLogin), keyEquivalent: "")
         launch.target = self
         launch.state = launchAtLogin.isEnabled ? .on : .off
         menu.addItem(launch)
 
         menu.addItem(.separator())
-        let updates = NSMenuItem(title: "Check for Updates", action: #selector(checkForUpdates), keyEquivalent: "")
+        let updates = NSMenuItem(title: L10n.text("menu.checkForUpdates"), action: #selector(checkForUpdates), keyEquivalent: "")
         updates.target = self
         menu.addItem(updates)
 
-        let about = NSMenuItem(title: "About CodexPulse", action: #selector(showAbout), keyEquivalent: "")
+        let about = NSMenuItem(title: L10n.text("menu.about"), action: #selector(showAbout), keyEquivalent: "")
         about.target = self
         menu.addItem(about)
 
         menu.addItem(.separator())
-        let quit = NSMenuItem(title: "Quit CodexPulse", action: #selector(quit), keyEquivalent: "q")
+        let quit = NSMenuItem(title: L10n.text("menu.quit"), action: #selector(quit), keyEquivalent: "q")
         quit.target = self
         menu.addItem(quit)
 
@@ -169,7 +170,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         do {
             try launchAtLogin.setEnabled(!launchAtLogin.isEnabled)
         } catch {
-            showError("Could not update launch-at-login setting: \(error.localizedDescription)")
+            showError(L10n.format("menu.launchAtLoginError", error.localizedDescription))
         }
         rebuildMenu()
     }
@@ -186,7 +187,7 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
 
     private func showError(_ message: String) {
         let alert = NSAlert()
-        alert.messageText = "CodexPulse"
+        alert.messageText = L10n.text("app.name")
         alert.informativeText = message
         alert.alertStyle = .warning
         alert.runModal()

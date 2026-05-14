@@ -4,6 +4,72 @@ import Testing
 
 struct CodexPulseTests {
     @Test
+    func testLocalizationResourcesExistForSupportedLocales() throws {
+        let resources = packageRoot()
+            .appendingPathComponent("Sources/CodexPulse/Resources", isDirectory: true)
+        let locales = ["en", "zh-Hans", "zh-Hant"]
+        let requiredKeys = [
+            "app.name",
+            "status.limited",
+            "status.stale",
+            "status.low",
+            "status.fiveHour.short",
+            "status.weekly.short",
+            "percent.used",
+            "percent.remainingAndUsed",
+            "menu.refreshNow",
+            "menu.preferences",
+            "menu.launchAtLogin",
+            "menu.checkForUpdates",
+            "menu.about",
+            "menu.quit",
+            "preferences.title",
+            "preferences.tab.display",
+            "preferences.tab.alerts",
+            "preferences.tab.diagnostics",
+            "preferences.language",
+            "appLanguage.system",
+            "appLanguage.english",
+            "appLanguage.simplifiedChinese",
+            "appLanguage.traditionalChinese",
+            "about.privacyNote",
+            "notifications.threshold.title",
+            "notifications.threshold.body",
+            "notifications.stale.title",
+            "notifications.stale.body",
+            "empty.codexNotInstalled",
+            "empty.noRateLimitData",
+            "empty.helperUnavailable",
+            "empty.cachedOnly",
+            "empty.available"
+        ]
+
+        for locale in locales {
+            let localeDirectory = resources.appendingPathComponent("\(locale).lproj", isDirectory: true)
+            let strings = try loadStrings(localeDirectory.appendingPathComponent("Localizable.strings"))
+            let infoPlist = try loadStrings(localeDirectory.appendingPathComponent("InfoPlist.strings"))
+
+            for key in requiredKeys {
+                #expect(strings[key]?.isEmpty == false, "Missing \(key) in \(locale)")
+            }
+            #expect(infoPlist["CFBundleDisplayName"]?.isEmpty == false, "Missing display name in \(locale)")
+        }
+    }
+
+    @Test
+    func testEnglishLocalizationKeepsCurrentStatusVocabulary() throws {
+        let resources = packageRoot()
+            .appendingPathComponent("Sources/CodexPulse/Resources/en.lproj/Localizable.strings")
+        let strings = try loadStrings(resources)
+
+        #expect(strings["status.limited"] == "limited")
+        #expect(strings["status.stale"] == "stale")
+        #expect(strings["status.low"] == "low")
+        #expect(strings["percent.used"] == "%d%% used")
+        #expect(strings["percent.remainingAndUsed"] == "%d%% rem/%d%% used")
+    }
+
+    @Test
     func testRemainingPercentClampsFromUsedPercent() {
         #expect(RateLimitWindow(usedPercent: 9, windowDurationMins: 300, resetsAt: nil).remainingPercent == 91)
         #expect(RateLimitWindow(usedPercent: -10, windowDurationMins: 300, resetsAt: nil).remainingPercent == 100)
@@ -50,11 +116,13 @@ struct CodexPulseTests {
         defer { defaults.removePersistentDomain(forName: suiteName) }
 
         #expect(CodexPulseSettings.load(from: defaults) == .defaults)
+        #expect(CodexPulseSettings.defaults.appLanguage == .system)
 
         let settings = CodexPulseSettings(
             displayMode: .weekly,
             percentDisplay: .both,
             refreshInterval: .fiveMinutes,
+            appLanguage: .traditionalChinese,
             notificationsEnabled: true,
             notifyFiveHourThresholds: [10, 5],
             notifyWeeklyThresholds: [20],
@@ -217,6 +285,17 @@ struct CodexPulseTests {
         )
     }
 
+    private func packageRoot() -> URL {
+        URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+    }
+
+    private func loadStrings(_ url: URL) throws -> [String: String] {
+        let dictionary = try #require(NSDictionary(contentsOf: url) as? [String: String])
+        return dictionary
+    }
 }
 
 private extension CodexPulseSettings {
@@ -225,6 +304,7 @@ private extension CodexPulseSettings {
             displayMode: displayMode,
             percentDisplay: percentDisplay,
             refreshInterval: refreshInterval,
+            appLanguage: appLanguage,
             notificationsEnabled: true,
             notifyFiveHourThresholds: notifyFiveHourThresholds,
             notifyWeeklyThresholds: notifyWeeklyThresholds,

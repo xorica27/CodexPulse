@@ -18,11 +18,14 @@ final class SettingsStore: ObservableObject {
     init(userDefaults: UserDefaults = .standard) {
         self.userDefaults = userDefaults
         self.settings = CodexPulseSettings.load(from: userDefaults)
+        L10n.useLanguage(settings.appLanguage)
     }
 
     func update(_ mutate: (inout CodexPulseSettings) -> Void) {
         var next = settings
         mutate(&next)
-        settings = next.normalized()
+        let normalized = next.normalized()
+        L10n.useLanguage(normalized.appLanguage)
+        settings = normalized
     }
 }

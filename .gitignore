@@ -6,3 +6,4 @@ dist/
 *.xcodeproj
 *.swp
 *.tmp
+agent.md

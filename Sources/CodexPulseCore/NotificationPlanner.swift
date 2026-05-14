@@ -23,12 +23,23 @@ public struct RateLimitNotificationDecision: Equatable, Sendable {
     public let kind: RateLimitNotificationKind
     public let title: String
     public let body: String
+    public let remainingPercent: Int?
+    public let staleAfterMinutes: Int?
     public let deduplicationKey: String
 
-    public init(kind: RateLimitNotificationKind, title: String, body: String, deduplicationKey: String) {
+    public init(
+        kind: RateLimitNotificationKind,
+        title: String,
+        body: String,
+        deduplicationKey: String,
+        remainingPercent: Int? = nil,
+        staleAfterMinutes: Int? = nil
+    ) {
         self.kind = kind
         self.title = title
         self.body = body
+        self.remainingPercent = remainingPercent
+        self.staleAfterMinutes = staleAfterMinutes
         self.deduplicationKey = deduplicationKey
     }
 }
@@ -65,7 +76,8 @@ public enum NotificationPlanner {
                     kind: .staleData,
                     title: "CodexPulse data is stale",
                     body: "CodexPulse has not refreshed successfully for \(settings.staleAfterMinutes) minutes.",
-                    deduplicationKey: key
+                    deduplicationKey: key,
+                    staleAfterMinutes: settings.staleAfterMinutes
                 ))
             }
         }
@@ -99,7 +111,8 @@ public enum NotificationPlanner {
                 kind: .threshold(window: kind, threshold: threshold),
                 title: "Codex \(kind.menuTitle) limit is low",
                 body: "\(window.remainingPercent)% remaining in the \(kind.menuTitle) window.",
-                deduplicationKey: key
+                deduplicationKey: key,
+                remainingPercent: window.remainingPercent
             )
         }
     }

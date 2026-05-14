@@ -4,6 +4,8 @@ A small macOS menu bar app for keeping an eye on your Codex rate limits.
 
 CodexPulse sits in the top bar and shows your current 5-hour and weekly Codex quota remaining, so you can glance at it without opening the Codex app settings menu.
 
+CodexPulse works best when the official Codex app is installed, opened, and signed in on the same Mac. It reads the local Codex app helper for live quota data, then falls back to recent cached data if Codex is temporarily unavailable.
+
 ![CodexPulse icon](docs/codexpulse-icon.png)
 
 ## What It Shows
@@ -22,6 +24,8 @@ You can choose how compact the top-bar display should be:
 
 ## Install
 
+Before installing CodexPulse, install and open the official Codex app at least once. CodexPulse depends on the local Codex app helper for the most accurate live rate-limit data.
+
 1. Download `CodexPulse-macos-arm64.zip` from the latest GitHub release.
 2. Unzip it.
 3. Drag `CodexPulse.app` into your `Applications` folder.
@@ -32,6 +36,8 @@ Because this early release is ad-hoc signed, macOS may block the first launch. I
 ## Using CodexPulse
 
 After launch, CodexPulse appears in your macOS menu bar as a small pulse-cloud icon with your selected quota text beside it.
+
+If Codex is not installed, not signed in, or has not produced rate-limit data yet, CodexPulse will explain that in the menu instead of guessing.
 
 Open the menu to:
 
@@ -48,11 +54,18 @@ CodexPulse includes a small Preferences window for the things you may want to tu
 
 - choose whether the top bar shows both windows, 5h only, or weekly only
 - show remaining percent, used percent, or both
+- switch the app language between System, English, Simplified Chinese, and Traditional Chinese
 - refresh every 30 seconds, 60 seconds, or 5 minutes
 - opt in to low-limit and stale-data notifications
 - review Diagnostics with source, cache, last refresh, and last error details
 
 Notifications are off by default. If you enable them, macOS will ask for permission the first time.
+
+## Language Support
+
+CodexPulse includes English, Simplified Chinese, and Traditional Chinese. By default it follows your macOS language preference, and you can override the language from Preferences when you want to test or use another language.
+
+The menu bar text stays intentionally compact, while menus, Preferences, About, notifications, and empty states are ready to translate through the bundled `.lproj` resources.
 
 ## Privacy
 
@@ -64,7 +77,8 @@ It reads your Codex rate-limit information from the local Codex app helper and d
 
 - macOS 13 or newer
 - Apple Silicon Mac
-- Codex installed at `/Applications/Codex.app`
+- The official Codex app installed at `/Applications/Codex.app`
+- Codex opened and signed in at least once on the same Mac
 
 ## For Developers
 

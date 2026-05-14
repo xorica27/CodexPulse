@@ -38,6 +38,26 @@ public enum RefreshInterval: Int, CaseIterable, Codable, Sendable {
     }
 }
 
+public enum AppLanguage: String, CaseIterable, Codable, Sendable {
+    case system
+    case english
+    case simplifiedChinese
+    case traditionalChinese
+
+    public var localizationIdentifier: String? {
+        switch self {
+        case .system:
+            nil
+        case .english:
+            "en"
+        case .simplifiedChinese:
+            "zh-Hans"
+        case .traditionalChinese:
+            "zh-Hant"
+        }
+    }
+}
+
 public struct CodexPulseSettings: Codable, Equatable, Sendable {
     private enum Keys {
         static let settings = "codexPulseSettings"
@@ -47,6 +67,7 @@ public struct CodexPulseSettings: Codable, Equatable, Sendable {
     public var displayMode: DisplayMode
     public var percentDisplay: PercentDisplay
     public var refreshInterval: RefreshInterval
+    public var appLanguage: AppLanguage
     public var notificationsEnabled: Bool
     public var notifyFiveHourThresholds: [Int]
     public var notifyWeeklyThresholds: [Int]
@@ -56,6 +77,7 @@ public struct CodexPulseSettings: Codable, Equatable, Sendable {
         displayMode: .both,
         percentDisplay: .remaining,
         refreshInterval: .oneMinute,
+        appLanguage: .system,
         notificationsEnabled: false,
         notifyFiveHourThresholds: [20, 10, 5],
         notifyWeeklyThresholds: [20, 10, 5],
@@ -66,6 +88,7 @@ public struct CodexPulseSettings: Codable, Equatable, Sendable {
         displayMode: DisplayMode,
         percentDisplay: PercentDisplay,
         refreshInterval: RefreshInterval,
+        appLanguage: AppLanguage = .system,
         notificationsEnabled: Bool,
         notifyFiveHourThresholds: [Int],
         notifyWeeklyThresholds: [Int],
@@ -74,6 +97,7 @@ public struct CodexPulseSettings: Codable, Equatable, Sendable {
         self.displayMode = displayMode
         self.percentDisplay = percentDisplay
         self.refreshInterval = refreshInterval
+        self.appLanguage = appLanguage
         self.notificationsEnabled = notificationsEnabled
         self.notifyFiveHourThresholds = notifyFiveHourThresholds
         self.notifyWeeklyThresholds = notifyWeeklyThresholds
@@ -105,6 +129,7 @@ public struct CodexPulseSettings: Codable, Equatable, Sendable {
             displayMode: displayMode,
             percentDisplay: percentDisplay,
             refreshInterval: refreshInterval,
+            appLanguage: appLanguage,
             notificationsEnabled: notificationsEnabled,
             notifyFiveHourThresholds: Self.normalizedThresholds(notifyFiveHourThresholds),
             notifyWeeklyThresholds: Self.normalizedThresholds(notifyWeeklyThresholds),

@@ -37,7 +37,7 @@ final class PreferencesWindowController {
             backing: .buffered,
             defer: false
         )
-        window.title = "CodexPulse Preferences"
+        window.title = L10n.text("preferences.title")
         window.contentView = NSHostingView(rootView: view)
         window.center()
         window.isReleasedWhenClosed = false
@@ -59,11 +59,11 @@ private struct PreferencesView: View {
     var body: some View {
         TabView {
             displayTab
-                .tabItem { Text("Display") }
+                .tabItem { Text(L10n.text("preferences.tab.display")) }
             alertsTab
-                .tabItem { Text("Alerts") }
+                .tabItem { Text(L10n.text("preferences.tab.alerts")) }
             diagnosticsTab
-                .tabItem { Text("Diagnostics") }
+                .tabItem { Text(L10n.text("preferences.tab.diagnostics")) }
         }
         .padding(20)
         .frame(width: 520, height: 520)
@@ -71,21 +71,27 @@ private struct PreferencesView: View {
 
     private var displayTab: some View {
         Form {
-            Picker("Menu bar", selection: binding(\.displayMode)) {
+            Picker(L10n.text("preferences.menuBar"), selection: binding(\.displayMode)) {
                 ForEach(DisplayMode.allCases, id: \.self) { mode in
-                    Text(mode.menuTitle).tag(mode)
+                    Text(L10n.displayModeTitle(mode)).tag(mode)
                 }
             }
 
-            Picker("Percent", selection: binding(\.percentDisplay)) {
+            Picker(L10n.text("preferences.percent"), selection: binding(\.percentDisplay)) {
                 ForEach(PercentDisplay.allCases, id: \.self) { mode in
-                    Text(mode.menuTitle).tag(mode)
+                    Text(L10n.percentDisplayTitle(mode)).tag(mode)
                 }
             }
 
-            Picker("Refresh", selection: binding(\.refreshInterval)) {
+            Picker(L10n.text("preferences.language"), selection: binding(\.appLanguage)) {
+                ForEach(AppLanguage.allCases, id: \.self) { language in
+                    Text(L10n.appLanguageTitle(language)).tag(language)
+                }
+            }
+
+            Picker(L10n.text("preferences.refresh"), selection: binding(\.refreshInterval)) {
                 ForEach(RefreshInterval.allCases, id: \.self) { interval in
-                    Text(interval.menuTitle).tag(interval)
+                    Text(L10n.refreshIntervalTitle(interval)).tag(interval)
                 }
             }
         }
@@ -94,7 +100,7 @@ private struct PreferencesView: View {
 
     private var alertsTab: some View {
         Form {
-            Toggle("Enable notifications", isOn: Binding(
+            Toggle(L10n.text("preferences.notifications"), isOn: Binding(
                 get: { settings.notificationsEnabled },
                 set: { enabled in
                     settingsStore.update { $0.notificationsEnabled = enabled }
@@ -104,20 +110,20 @@ private struct PreferencesView: View {
                 }
             ))
 
-            Section("5-hour warnings") {
+            Section(L10n.text("preferences.fiveHourWarnings")) {
                 ForEach([20, 10, 5], id: \.self) { threshold in
-                    Toggle("\(threshold)% remaining", isOn: thresholdBinding(threshold, keyPath: \.notifyFiveHourThresholds))
+                    Toggle(L10n.format("preferences.thresholdRemaining", threshold), isOn: thresholdBinding(threshold, keyPath: \.notifyFiveHourThresholds))
                 }
             }
 
-            Section("Weekly warnings") {
+            Section(L10n.text("preferences.weeklyWarnings")) {
                 ForEach([20, 10, 5], id: \.self) { threshold in
-                    Toggle("\(threshold)% remaining", isOn: thresholdBinding(threshold, keyPath: \.notifyWeeklyThresholds))
+                    Toggle(L10n.format("preferences.thresholdRemaining", threshold), isOn: thresholdBinding(threshold, keyPath: \.notifyWeeklyThresholds))
                 }
             }
 
             Stepper(
-                "Stale data alert after \(settings.staleAfterMinutes) minutes",
+                L10n.format("preferences.staleAlertAfter", settings.staleAfterMinutes),
                 value: Binding(
                     get: { settings.staleAfterMinutes },
                     set: { value in settingsStore.update { $0.staleAfterMinutes = value } }
@@ -131,20 +137,20 @@ private struct PreferencesView: View {
 
     private var diagnosticsTab: some View {
         Form {
-            Section("Current status") {
-                Text(rateLimitStore.emptyState.menuMessage)
-                Text("Source: \(rateLimitStore.data?.source.rawValue ?? "none")")
-                Text("Last update: \(rateLimitStore.data.map { DisplayFormatter.relativeAge($0.fetchedAt) } ?? "never")")
+            Section(L10n.text("preferences.currentStatus")) {
+                Text(L10n.emptyStateMessage(rateLimitStore.emptyState))
+                Text(L10n.format("preferences.source", rateLimitStore.data?.source.rawValue ?? L10n.text("generic.none")))
+                Text(L10n.format("preferences.lastUpdate", rateLimitStore.data.map { LocalizedDisplayFormatter.relativeAge($0.fetchedAt) } ?? L10n.text("generic.never")))
             }
 
-            Section("Codex") {
-                Text("Plan: \(rateLimitStore.data?.snapshot.planType ?? "unknown")")
-                Text("5-hour: \(DisplayFormatter.detailLine(label: "", window: rateLimitStore.data?.snapshot.primary).trimmingCharacters(in: CharacterSet(charactersIn: ": ")))")
-                Text("Weekly: \(DisplayFormatter.detailLine(label: "", window: rateLimitStore.data?.snapshot.secondary).trimmingCharacters(in: CharacterSet(charactersIn: ": ")))")
+            Section(L10n.text("preferences.codex")) {
+                Text(L10n.format("preferences.plan", rateLimitStore.data?.snapshot.planType ?? L10n.text("generic.unknown")))
+                Text(L10n.format("preferences.fiveHour", windowSummary(rateLimitStore.data?.snapshot.primary)))
+                Text(L10n.format("preferences.weekly", windowSummary(rateLimitStore.data?.snapshot.secondary)))
             }
 
-            Section("Last error") {
-                Text(rateLimitStore.lastErrorMessage ?? "No recent error")
+            Section(L10n.text("preferences.lastError")) {
+                Text(rateLimitStore.lastErrorMessage ?? L10n.text("preferences.noRecentError"))
                     .textSelection(.enabled)
             }
         }
@@ -174,5 +180,11 @@ private struct PreferencesView: View {
                 }
             }
         )
+    }
+
+    private func windowSummary(_ window: RateLimitWindow?) -> String {
+        LocalizedDisplayFormatter
+            .detailLine(label: "", window: window)
+            .trimmingCharacters(in: CharacterSet(charactersIn: ":： "))
     }
 }
