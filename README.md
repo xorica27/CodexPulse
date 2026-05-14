@@ -35,11 +35,24 @@ After launch, CodexPulse appears in your macOS menu bar as a small pulse-cloud i
 
 Open the menu to:
 
-- switch between 5h, weekly, or both display modes
 - refresh the value immediately
+- open Preferences
 - turn Launch at Login on or off
 - check when each limit resets
+- check for updates
 - quit the app
+
+## Preferences
+
+CodexPulse includes a small Preferences window for the things you may want to tune:
+
+- choose whether the top bar shows both windows, 5h only, or weekly only
+- show remaining percent, used percent, or both
+- refresh every 30 seconds, 60 seconds, or 5 minutes
+- opt in to low-limit and stale-data notifications
+- review Diagnostics with source, cache, last refresh, and last error details
+
+Notifications are off by default. If you enable them, macOS will ask for permission the first time.
 
 ## Privacy
 

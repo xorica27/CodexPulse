@@ -2,6 +2,16 @@ import Foundation
 
 public enum DisplayFormatter {
     public static func statusTitle(for data: RateLimitData?, mode: DisplayMode) -> String {
+        statusTitle(for: data, mode: mode, percentDisplay: .remaining)
+    }
+
+    public static func statusTitle(
+        for data: RateLimitData?,
+        mode: DisplayMode,
+        percentDisplay: PercentDisplay,
+        staleAfterMinutes: Int = CodexPulseSettings.defaults.staleAfterMinutes,
+        now: Date = Date()
+    ) -> String {
         guard let data else {
             return "?"
         }
@@ -10,24 +20,45 @@ public enum DisplayFormatter {
             return "limited"
         }
 
-        let fiveHour = percentText(data.snapshot.primary)
-        let weekly = percentText(data.snapshot.secondary)
+        let prefix: String
+        if isStale(data, staleAfterMinutes: staleAfterMinutes, now: now) {
+            prefix = "stale "
+        } else if isLow(data) {
+            prefix = "low "
+        } else {
+            prefix = ""
+        }
+
+        let fiveHour = percentText(data.snapshot.primary, display: percentDisplay)
+        let weekly = percentText(data.snapshot.secondary, display: percentDisplay)
 
         switch mode {
         case .both:
-            return "5h \(fiveHour) W \(weekly)"
+            return "\(prefix)5h \(fiveHour) W \(weekly)"
         case .fiveHour:
-            return "5h \(fiveHour)"
+            return "\(prefix)5h \(fiveHour)"
         case .weekly:
-            return "W \(weekly)"
+            return "\(prefix)W \(weekly)"
         }
     }
 
     public static func percentText(_ window: RateLimitWindow?) -> String {
+        percentText(window, display: .remaining)
+    }
+
+    public static func percentText(_ window: RateLimitWindow?, display: PercentDisplay) -> String {
         guard let window else {
             return "?%"
         }
-        return "\(window.remainingPercent)%"
+
+        switch display {
+        case .remaining:
+            return "\(window.remainingPercent)%"
+        case .used:
+            return "\(window.usedPercent)% used"
+        case .both:
+            return "\(window.remainingPercent)% rem/\(window.usedPercent)% used"
+        }
     }
 
     public static func resetText(_ epochSeconds: Int?, now: Date = Date()) -> String {
@@ -67,5 +98,22 @@ public enum DisplayFormatter {
             return "\(hours)h \(minutes)m ago"
         }
         return "\(minutes)m ago"
+    }
+
+    public static func isStale(_ data: RateLimitData, staleAfterMinutes: Int, now: Date = Date()) -> Bool {
+        if data.source == .cache {
+            return true
+        }
+        let staleAfter = TimeInterval(max(1, staleAfterMinutes) * 60)
+        return now.timeIntervalSince(data.fetchedAt) >= staleAfter
+    }
+
+    public static func isLow(_ data: RateLimitData, threshold: Int = 10) -> Bool {
+        [data.snapshot.primary, data.snapshot.secondary].contains { window in
+            guard let window else {
+                return false
+            }
+            return window.remainingPercent <= threshold
+        }
     }
 }

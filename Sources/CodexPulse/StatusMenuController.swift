@@ -4,31 +4,28 @@ import Foundation
 
 @MainActor
 final class StatusMenuController: NSObject, NSMenuDelegate {
-    private enum Keys {
-        static let displayMode = "displayMode"
-    }
-
     private let statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
     private let store = RateLimitStore()
+    private let settingsStore = SettingsStore()
+    private let notificationManager = NotificationManager()
     private let launchAtLogin = LaunchAtLoginManager()
-    private let userDefaults: UserDefaults
+    private var preferencesWindowController: PreferencesWindowController?
+    private let aboutWindowController = AboutWindowController()
     private var timer: Timer?
-    private var displayMode: DisplayMode {
-        didSet {
-            userDefaults.set(displayMode.rawValue, forKey: Keys.displayMode)
-            updateStatusTitle()
-            rebuildMenu()
-        }
-    }
 
-    init(userDefaults: UserDefaults = .standard) {
-        self.userDefaults = userDefaults
-        self.displayMode = DisplayMode(rawValue: userDefaults.string(forKey: Keys.displayMode) ?? "") ?? .both
+    override init() {
         super.init()
         configureStatusButton()
         store.onChange = { [weak self] in
             self?.updateStatusTitle()
             self?.rebuildMenu()
+            self?.processNotifications()
+        }
+        settingsStore.onChange = { [weak self] in
+            self?.updateStatusTitle()
+            self?.rebuildMenu()
+            self?.rescheduleTimer()
+            self?.processNotifications()
         }
         rebuildMenu()
         updateStatusTitle()
@@ -36,16 +33,18 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
 
     func start() {
         store.refresh()
-        timer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in
-            Task { @MainActor in
-                self?.store.refresh()
-            }
-        }
+        rescheduleTimer()
     }
 
     private func updateStatusTitle() {
-        let title = DisplayFormatter.statusTitle(for: store.data, mode: displayMode)
-        statusItem.button?.title = title
+        let settings = settingsStore.settings
+        let title = DisplayFormatter.statusTitle(
+            for: store.data,
+            mode: settings.displayMode,
+            percentDisplay: settings.percentDisplay,
+            staleAfterMinutes: settings.staleAfterMinutes
+        )
+        statusItem.button?.title = "  \(title)"
         statusItem.button?.toolTip = "CodexPulse \(title)"
         statusItem.button?.setAccessibilityLabel("CodexPulse \(title)")
     }
@@ -97,28 +96,12 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
             if let message = data.errorMessage {
                 menu.addItem(disabled("Fallback reason: \(message)"))
             }
-
-            if !data.additionalLimits.isEmpty {
-                menu.addItem(.separator())
-                menu.addItem(disabled("Additional limits"))
-                for (name, snapshot) in data.additionalLimits.sorted(by: { $0.key < $1.key }) {
-                    let five = DisplayFormatter.percentText(snapshot.primary)
-                    let weekly = DisplayFormatter.percentText(snapshot.secondary)
-                    menu.addItem(disabled("\(name): 5h \(five), W \(weekly)"))
-                }
-            }
         } else {
             menu.addItem(disabled("Codex rate limits unavailable"))
         }
 
-        menu.addItem(.separator())
-        menu.addItem(disabled("Display"))
-        for mode in DisplayMode.allCases {
-            let item = NSMenuItem(title: mode.menuTitle, action: #selector(setDisplayMode(_:)), keyEquivalent: "")
-            item.target = self
-            item.representedObject = mode.rawValue
-            item.state = mode == displayMode ? .on : .off
-            menu.addItem(item)
+        if store.emptyState != .available {
+            menu.addItem(disabled(store.emptyState.menuMessage))
         }
 
         menu.addItem(.separator())
@@ -126,10 +109,23 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         refresh.target = self
         menu.addItem(refresh)
 
+        let preferences = NSMenuItem(title: "Preferences...", action: #selector(showPreferences), keyEquivalent: ",")
+        preferences.target = self
+        menu.addItem(preferences)
+
         let launch = NSMenuItem(title: "Launch at Login", action: #selector(toggleLaunchAtLogin), keyEquivalent: "")
         launch.target = self
         launch.state = launchAtLogin.isEnabled ? .on : .off
         menu.addItem(launch)
+
+        menu.addItem(.separator())
+        let updates = NSMenuItem(title: "Check for Updates", action: #selector(checkForUpdates), keyEquivalent: "")
+        updates.target = self
+        menu.addItem(updates)
+
+        let about = NSMenuItem(title: "About CodexPulse", action: #selector(showAbout), keyEquivalent: "")
+        about.target = self
+        menu.addItem(about)
 
         menu.addItem(.separator())
         let quit = NSMenuItem(title: "Quit CodexPulse", action: #selector(quit), keyEquivalent: "q")
@@ -143,16 +139,30 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         rebuildMenu()
     }
 
-    @objc private func setDisplayMode(_ sender: NSMenuItem) {
-        guard let rawValue = sender.representedObject as? String,
-              let mode = DisplayMode(rawValue: rawValue) else {
-            return
-        }
-        displayMode = mode
-    }
-
     @objc private func refreshNow() {
         store.refresh()
+    }
+
+    @objc private func showPreferences() {
+        if preferencesWindowController == nil {
+            preferencesWindowController = PreferencesWindowController(
+                settingsStore: settingsStore,
+                rateLimitStore: store,
+                notificationManager: notificationManager
+            )
+        }
+        preferencesWindowController?.show()
+    }
+
+    @objc private func checkForUpdates() {
+        guard let url = URL(string: "https://github.com/xorica27/CodexPulse/releases/latest") else {
+            return
+        }
+        NSWorkspace.shared.open(url)
+    }
+
+    @objc private func showAbout() {
+        aboutWindowController.show()
     }
 
     @objc private func toggleLaunchAtLogin() {
@@ -180,5 +190,18 @@ final class StatusMenuController: NSObject, NSMenuDelegate {
         alert.informativeText = message
         alert.alertStyle = .warning
         alert.runModal()
+    }
+
+    private func rescheduleTimer() {
+        timer?.invalidate()
+        timer = Timer.scheduledTimer(withTimeInterval: settingsStore.settings.refreshInterval.seconds, repeats: true) { [weak self] _ in
+            Task { @MainActor in
+                self?.store.refresh()
+            }
+        }
+    }
+
+    private func processNotifications() {
+        notificationManager.process(data: store.data, settings: settingsStore.settings)
     }
 }
