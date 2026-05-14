@@ -38,7 +38,6 @@ final class LaunchAtLoginManager {
 
         let data = try PropertyListSerialization.data(fromPropertyList: plist, format: .xml, options: 0)
         try data.write(to: launchAgentURL, options: .atomic)
-        _ = runLaunchctl(arguments: ["bootstrap", guiDomain, launchAgentURL.path])
     }
 
     private func disable() {

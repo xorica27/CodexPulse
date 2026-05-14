@@ -84,6 +84,17 @@ struct CodexPulseTests {
     }
 
     @Test
+    func testLaunchAtLoginDoesNotBootstrapImmediately() throws {
+        let source = try String(
+            contentsOf: packageRoot().appendingPathComponent("Sources/CodexPulse/LaunchAtLoginManager.swift"),
+            encoding: .utf8
+        )
+
+        #expect(source.contains("\"RunAtLoad\": true"))
+        #expect(!source.contains("\"bootstrap\""))
+    }
+
+    @Test
     func testRemainingPercentClampsFromUsedPercent() {
         #expect(RateLimitWindow(usedPercent: 9, windowDurationMins: 300, resetsAt: nil).remainingPercent == 91)
         #expect(RateLimitWindow(usedPercent: -10, windowDurationMins: 300, resetsAt: nil).remainingPercent == 100)

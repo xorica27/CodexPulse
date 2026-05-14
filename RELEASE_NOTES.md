@@ -1,15 +1,15 @@
-# CodexPulse 0.3.2
+# CodexPulse 0.3.3
 
-This release adds a friendlier macOS installer.
+This release fixes a Launch at Login issue.
 
-## What's New
+## What's Fixed
 
-- Added a polished DMG installer with the familiar drag-to-Applications layout.
-- Added a custom DMG background with CodexPulse install guidance.
-- Updated install instructions to recommend the DMG while keeping the zip available for manual installs.
+- Turning on Launch at Login no longer starts a second CodexPulse instance immediately.
+- Launch at Login still works on the next login.
+- Turning Launch at Login off still unloads any existing CodexPulse launch agent.
 
 ## Good To Know
 
-CodexPulse works best when the official Codex app is installed in `/Applications`, opened, and signed in on the same Mac.
+If you saw two CodexPulse indicators in the menu bar after enabling Launch at Login, this release is the fix.
 
 This build is ad-hoc signed, so macOS may ask for confirmation the first time you open it. If that happens, right-click `CodexPulse.app`, choose **Open**, then confirm.
