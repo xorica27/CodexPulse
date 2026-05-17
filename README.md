@@ -75,6 +75,10 @@ CodexPulse runs locally on your Mac.
 
 It reads your Codex rate-limit information from the local Codex app helper and does not send your data anywhere. If Codex is not available for a moment, CodexPulse shows the last successful reading and marks it as cached/stale in the menu.
 
+## License
+
+CodexPulse is released under the MIT License. See `LICENSE` for details.
+
 ## Requirements
 
 - macOS 13 or newer
